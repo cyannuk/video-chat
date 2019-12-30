@@ -1,0 +1,10 @@
+version: '3.7'
+
+services:
+  video-chat:
+    container_name: video-chat
+    image: debian:buster-slim
+    volumes:
+      - ./..:/application
+    network_mode: host
+    command: /application/video-chat

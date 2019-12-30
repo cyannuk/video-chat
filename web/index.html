@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>vichat - a video chat app</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script defer src="/js/hprose-html5.min.js"></script>
+    <script defer src="/js/auxiliary.js"></script>
+  </head>
+
+  <body>
+    <header>
+      <h1><a href="/" class="badge badge-dark">vichat</a></h1>
+      <h2>a video chat application</h2>
+    </header>
+
+    <main class="container flex-fill">
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+          <div id="loginContainer"><b>NOTE</b>: You are not currently logged in. If you'd like to start chat session please
+            <button type="button" class="btn btn-dark">log in</button>
+          </div>
+          <div id="messageContainer" class="alert alert-light" role="alert"></div>
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+
+      <div id="videos" class="row">
+        <div class="col-md-6">
+          <div class="videoContainer">
+            <video id="selfVideo" autoplay></video>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="videoContainer">
+            <video id="remoteVideo" autoplay></video>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>Developed by <a target="_blank" href="https://github.com/cyannuk" class="badge badge-dark">cyannuk</a> and <a target="_blank" href="https://issart.com/" class="badge badge-dark">issart.com</a></p>
+    </footer>
+
+    <script>
+      document.querySelectorAll("#loginContainer button").forEach(e => e.onclick = async () => {
+        let url = new URL(document.location)
+        let session_id = url.searchParams.get("session")
+        if (!session_id) {
+          try {
+            const {client_id, localStream, remoteStream} = await newSession(onError)
+            init(`${document.location}?session=${client_id}`, localStream, remoteStream)
+          } catch (e) {
+            onError(e)
+          }
+        } else {
+          try {
+            const {client_id, localStream, remoteStream} = await joinSession(session_id, onError)
+            init(`${document.location}`, localStream, remoteStream)
+          } catch (e) {
+            onError(e)
+          }
+        }
+      })
+
+      document.querySelectorAll("header h1 a").forEach(e => e.onclick = async () => {
+        await leaveSession()
+      })
+
+      function init(url, localStream, remoteStream) {
+        document.getElementById("selfVideo").srcObject = localStream
+        document.getElementById("remoteVideo").srcObject = remoteStream
+        document.getElementById("loginContainer").style.display = "none"
+        document.getElementById("videos").style.visibility = "visible"
+        let sessionUrl = document.createElement("a")
+        with (sessionUrl) {
+          id = "sessionUrl"
+          href = url
+          target="_blank"
+          classList.add("badge")
+          classList.add("badge-dark")
+          innerText = "SESSION URL"
+        }
+        with (document.getElementById("messageContainer")) {
+          appendChild(sessionUrl)
+          style.display = "block"
+        }
+      }
+
+      function onError(error) {
+        document.getElementById("loginContainer").style.display = "none"
+        let sessionError = document.createElement("span")
+        with (sessionError) {
+          id = "sessionError"
+          classList.add("badge")
+          classList.add("badge-dark")
+          innerText = error
+        }
+        with (document.getElementById("messageContainer")) {
+          appendChild(sessionError)
+          style.display = "block"
+        }
+      }
+    </script>
+  </body>
+</html>
