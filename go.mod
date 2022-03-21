@@ -13,5 +13,5 @@ require (
 	github.com/pion/webrtc/v2 v2.1.18
 	github.com/rs/zerolog v1.17.2
 	github.com/satori/go.uuid v1.2.0
-	github.com/valyala/fasthttp v1.7.0
+	github.com/valyala/fasthttp v1.34.0
 )
